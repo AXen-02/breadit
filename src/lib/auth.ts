@@ -1,4 +1,4 @@
-import { NextAuthOptions } from "next-auth";
+import { NextAuthOptions, getServerSession } from "next-auth";
 import {PrismaAdapter} from '@next-auth/prisma-adapter'
 import { db } from "./db";
 import GoogleProvider from "next-auth/providers/google"
@@ -10,7 +10,7 @@ export const authOptions: NextAuthOptions = {
         strategy:'jwt'
     },
     pages:{
-        signIn: 'sign-in'
+        signIn: '/sign-in'
     },
     providers: [GoogleProvider({
         clientId: process.env.GOOGLE_CLIENT_ID!,
@@ -24,7 +24,6 @@ export const authOptions: NextAuthOptions = {
                 session.user.email = token.email
                 session.user.image = token.picture
                 session.user.username = token.username
-
             }
             return session
         },
@@ -65,3 +64,6 @@ export const authOptions: NextAuthOptions = {
         }
     },
 }
+
+
+export const getAuthSession = () => getServerSession(authOptions)

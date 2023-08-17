@@ -1,4 +1,4 @@
-import { LucideProps } from "lucide-react";
+import { LucideProps, User } from "lucide-react";
 import { FcGoogle } from "react-icons/fc";
 
 export const Icons = {
@@ -54,4 +54,5 @@ export const Icons = {
   google: (props: React.HTMLAttributes<SVGElement>) => {
     return <FcGoogle {...props} />;
   },
+  user: User,
 };
