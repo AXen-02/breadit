@@ -1,5 +1,4 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
+// This Prisma schema defines the structure of a database, specifying models, fields, relationships, and constraints for a social media platform-like application named breadit.
 
 generator client {
   provider = "prisma-client-js"
@@ -11,6 +10,8 @@ datasource db {
   relationMode = "prisma"
 }
 
+// Represents user authentication accounts (e.g., Google, GitHub).
+// Associated with a single User. 
 model Account {
   id                String  @id @default(cuid())
   userId            String
@@ -30,6 +31,8 @@ model Account {
   @@unique([provider, providerAccountId])
 }
 
+// Represents user sessions.
+// Associated with a single User.
 model Session {
   id           String   @id @default(cuid())
   sessionToken String   @unique
@@ -38,6 +41,8 @@ model Session {
   user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
+// Represents users of the application.
+// Associated with multiple Account, Session, Post, Comment, CommentVote, Vote, Subscription, and Subreddit.
 model User {
   id                String      @id @default(cuid())
   name              String?
@@ -55,9 +60,10 @@ model User {
   CommentVote  CommentVote[]
   Vote         Vote[]
   Subscription Subscription[]
-  Subreddit    Subreddit[]
 }
 
+// Represents user-created subreddits or communities.
+// Associated with multiple Post, Subscription, and User.
 model Subreddit {
   id        String   @id @default(cuid())
   name      String   @unique
@@ -68,12 +74,12 @@ model Subreddit {
   creatorId   String?
   Creator     User?          @relation("CreatedBy", fields: [creatorId], references: [id])
   subscribers Subscription[]
-  userId      String?
-  User        User?          @relation(fields: [userId], references: [id])
 
-  @@index([name])
+  @@index([name]) // for search pursposes
 }
 
+// Represents user subscriptions to subreddits.
+// Associated with a single User and a single Subreddit.
 model Subscription {
   user        User      @relation(fields: [userId], references: [id])
   userId      String
@@ -83,6 +89,9 @@ model Subscription {
   @@id([userId, subredditId]) // joins key
 }
 
+// Represents posts created by users within subreddits.
+// Associated with a single Subreddit and a single User.
+// Contains multiple Comment and Vote.
 model Post {
   id        String   @id @default(cuid())
   title     String
@@ -99,6 +108,10 @@ model Post {
   votes    Vote[]
 }
 
+// Represents comments made on posts.
+// Can have parent-child relationships (replyTo and replies) forming comment threads.
+// Associated with a single User and a single Post.
+// Contains multiple CommentVote.
 model Comment {
   id        String    @id @default(cuid())
   text      String
@@ -115,11 +128,8 @@ model Comment {
   commentId String?
 }
 
-enum VoteType {
-  UP
-  DOWN
-}
-
+// Represents user votes (upvotes or downvotes) on posts.
+// Associated with a single User and a single Post.
 model Vote {
   userId String
   postId String
@@ -131,6 +141,8 @@ model Vote {
   @@id([userId, postId])
 }
 
+// Represents user votes on comments.
+// Associated with a single User and a single Comment.
 model CommentVote {
   user      User     @relation(fields: [userId], references: [id])
   userId    String
@@ -139,4 +151,12 @@ model CommentVote {
   type      VoteType
 
   @@id([userId, commentId]) // combination of userId and commentId as id
+}
+
+// ENUMS
+
+// Represents types of votes (UP or DOWN).
+enum VoteType {
+  UP
+  DOWN
 }
